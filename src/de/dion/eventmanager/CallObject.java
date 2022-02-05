@@ -2,14 +2,13 @@ package de.dion.eventmanager;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.List;
 
 public class CallObject<T> {
 
 	private Method method;
 	private T type;
 	private Priority priority;
+	private boolean callAlways;
 
 	public CallObject(Method method, T type, Priority priority) {
 		this.method = method;
@@ -43,6 +42,14 @@ public class CallObject<T> {
 	public void setPriority(Priority priority) {
 		this.priority = priority;
 	}
+	
+	public boolean isCallAlways() {
+		return callAlways;
+	}
+
+	public void setCallAlways(boolean callAlways) {
+		this.callAlways = callAlways;
+	}
 
 	/**
 	 * Example Output:<br>
@@ -56,11 +63,19 @@ public class CallObject<T> {
 	 */
 	@Override
 	public String toString() {
-		String out = Modifier.isStatic(method.getModifiers()) ? "static " : "";
-		out += method.getGenericReturnType().getTypeName();
-		out += " ";
-		out += method.getName();
-		out += " (" + priority + "): ";
+		String out = "";
+		
+		if (callAlways) {
+			out += "@CallAlways ";
+		}
+		if (Modifier.isStatic(method.getModifiers())) {
+			out += "static ";
+		}
+		
+		out += method.getGenericReturnType().getTypeName() + " ";
+		out += method.getName() + " ";
+		out += "(" + priority + "): ";
+		
 		if (type instanceof Class) {
 			String clName = type.toString();
 			clName = clName.substring(clName.lastIndexOf(".") + 1, clName.length());

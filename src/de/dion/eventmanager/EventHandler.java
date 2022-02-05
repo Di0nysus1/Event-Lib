@@ -10,4 +10,5 @@ import java.lang.annotation.Target;
 public @interface EventHandler {
 	
 	Priority value() default Priority.Normal;
+	
 }

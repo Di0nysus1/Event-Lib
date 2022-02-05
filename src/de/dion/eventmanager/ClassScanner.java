@@ -108,6 +108,7 @@ public class ClassScanner<T> {
 		co.setMethod(m);
 		co.setType(type);
 		co.setPriority(anno.value());
+		co.setCallAlways(m.isAnnotationPresent(CallAlways.class));
 
 		if (!eventTree.containsKey(event)) {
 			ArrayList<CallObject<T>> methods = new ArrayList<>();

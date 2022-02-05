@@ -3,6 +3,7 @@ package de.dion.eventmanager;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import de.dion.eventmanager.events.Event;
 
@@ -74,7 +75,7 @@ public abstract class EventManager<T> {
 
 	/**
 	 * Ruft die Event Methoden in den gespeicherten Listenern auf<br>
-	 * Parameter: E extends Event
+	 * Parameter: Something extends Event
 	 */
 	public void call(Event event) {
 		if (event.isAsynchronous()) {
@@ -90,10 +91,20 @@ public abstract class EventManager<T> {
 			callListeners(event);
 		}
 	}
-	
+
 	/**
-	 * Wenn das Event Interrupted ist wird das aufrufen Listener abgebrochen
-	 * */
+	 * Wenn das Event Interrupted ist wird das aufrufen der Listener
+	 * abgebrochen<br>
+	 * Das Event wird nur aufgerufen wenn
+	 * {@link #shouldCallEvent(Object, Event)} true returnt<br>
+	 * oder die Event Methode die Annotation {@link CallAlways} gesetzt hat.<br>
+	 * Beispiel:<br>
+	 * <br>
+	 * <code>@CallAlways<br>
+	 * <code>@EventHandler(Priority.High)<br>
+	 * public static void onChat(PlayerChatEvent e) {}
+	 * </code>
+	 */
 	private void callListeners(Event event) {
 		ArrayList<CallObject<T>> methods = eventTree.get(event.getClass());
 		if (methods != null) {
@@ -102,22 +113,30 @@ public abstract class EventManager<T> {
 					break;
 				}
 				if (shouldCallEvent(co.getType(), event)) {
-					try {
-						co.getMethod().invoke(co.getType(), event);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+					invoke(co, event);
+				} else if (co.isCallAlways()) {
+					invoke(co, event);
 				}
 			}
 		}
 	}
 
+	private void invoke(CallObject<T> co, Event event) {
+		try {
+			co.getMethod().invoke(co.getType(), event);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
 	/**
 	 * Hier kannst du einzelne Listener black oder whitelisten<br>
-	 * Beispiel:<br><code>
+	 * Beispiel:<br>
+	 * <code>
 	 * public boolean shouldCallEvent(Module listener, Event event) {<br>
 	 * return listener.isEnabled();<br>
 	 * } </code>
+	 * 
 	 * @see #callListeners(Event)
 	 */
 	public abstract boolean shouldCallEvent(T listener, Event event);
@@ -134,9 +153,13 @@ public abstract class EventManager<T> {
 		for (Class<? extends Event> cl : eventTree.keySet()) {
 			System.out.println(tab + cl.getSimpleName() + ": {");
 
-			ArrayList<CallObject<T>> value = eventTree.get(cl);
-			for (CallObject<T> co : value) {
-				System.out.println(tab + tab + co.toString());
+			Iterator<CallObject<T>> values = eventTree.get(cl).iterator();
+
+			while (values.hasNext()) {
+				System.out.println(tab + tab + values.next().toString());
+				if (values.hasNext()) {
+					System.out.println();
+				}
 			}
 
 			System.out.print(tab + "}");
