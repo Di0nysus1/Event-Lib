@@ -1,4 +1,4 @@
-package de.dion.eventmanager;
+package de.dion.client.eventmanager;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
-import de.dion.eventmanager.events.Event;
+import de.dion.client.eventmanager.events.Event;
 
 /**
- * Der Classscanner durchsucht Klassen nach Events und trägt diese in den
+ * Der Classscanner durchsucht Klassen nach Events und trï¿½gt diese in den
  * eventTree ein
  */
 public class ClassScanner<T> {
@@ -22,10 +22,10 @@ public class ClassScanner<T> {
 	}
 	
 	/**
-	 * Sortiert alle Events im eventTree der Priorität nach<br>
+	 * Sortiert alle Events im eventTree der Prioritï¿½t nach<br>
 	 * von <b>HIGHEST</b> bis <b>LOWEST</b>
 	 * 
-	 * @see de.dion.eventmanager.EventHandler
+	 * @see EventHandler
 	 */
 	public void sortEvents() {
 		for (Class<? extends Event> cl : eventTree.keySet()) {
@@ -53,7 +53,7 @@ public class ClassScanner<T> {
 		return newMethods;
 	}
 
-	public void registerEvents(Collection<T> instances) {
+	public void registerEvents(Collection<? extends T> instances) {
 		for (T type : instances) {
 			registerEvents(type, getClass(type));
 		}
@@ -130,7 +130,7 @@ public class ClassScanner<T> {
 	private void staticError() {
 		System.err.println();
 		System.err.println("Wenn du bei registerEvents(...) eine Klasse statt ein Object angibst");
-		System.err.println("müssen die event Methoden Statisch sein!");
+		System.err.println("mï¿½ssen die event Methoden Statisch sein!");
 		System.err.println("Beispiel:");
 		System.err.println("eventManager.registerEvents(ChatListener.class);");
 		System.err.println();
@@ -140,7 +140,7 @@ public class ClassScanner<T> {
 	}
 
 	/**
-	 * Prüft ob die Angegebe Klasse eine Unterinstanz der Klase Event ist
+	 * Prï¿½ft ob die Angegebe Klasse eine Unterinstanz der Klase Event ist
 	 */
 	private boolean isEventClass(Class<?> cl) {
 		while (cl != Object.class) {

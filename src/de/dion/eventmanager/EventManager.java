@@ -1,11 +1,11 @@
-package de.dion.eventmanager;
+package de.dion.client.eventmanager;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import de.dion.eventmanager.events.Event;
+import de.dion.client.eventmanager.events.Event;
 
 /**
  * @version 1.0
@@ -21,17 +21,17 @@ public abstract class EventManager<T> {
 	}
 
 	/**
-	 * Löscht alle gespeicherten Events aus dem eventTree
+	 * Lï¿½scht alle gespeicherten Events aus dem eventTree
 	 */
 	public void unregisterAll() {
 		eventTree.clear();
 	}
 
 	/**
-	 * Sortiert alle Events im eventTree der Priorität nach<br>
+	 * Sortiert alle Events im eventTree der Prioritaet nach<br>
 	 * von <b>HIGHEST</b> bis <b>LOWEST</b>
 	 * 
-	 * @see de.dion.eventmanager.EventHandler
+	 * @see EventHandler
 	 */
 	public void sortEvents() {
 		scanner.sortEvents();
@@ -68,7 +68,7 @@ public abstract class EventManager<T> {
 	 * Beispiel:<br>
 	 * <code>registerEvents(ModuleManager.getAllModules());</code>
 	 */
-	public void registerEvents(Collection<T> instances) {
+	public void registerEvents(Collection<? extends T> instances) {
 		checkNull(instances);
 		scanner.registerEvents(instances);
 	}
@@ -142,7 +142,7 @@ public abstract class EventManager<T> {
 	public abstract boolean shouldCallEvent(T listener, Event event);
 
 	/**
-	 * Printet den Inhalt der Variable eventTree in aufgelöster Darstellung<br>
+	 * Printet den Inhalt der Variable eventTree in aufgelï¿½ster Darstellung<br>
 	 * Darin sind alle Event Listener gespeichert
 	 */
 	public void printEventTree() {
