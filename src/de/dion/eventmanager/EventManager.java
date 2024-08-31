@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import de.dion.client.eventmanager.events.Event;
+import de.dion.eventmanager.events.Event;
 
 /**
  * @version 1.1
