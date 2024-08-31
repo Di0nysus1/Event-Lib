@@ -8,12 +8,13 @@ import java.util.Iterator;
 import de.dion.client.eventmanager.events.Event;
 
 /**
- * @version 1.0
+ * @version 1.1
  * @author Dionysus
  */
 public abstract class EventManager<T> {
 
 	private HashMap<Class<? extends Event>, ArrayList<CallObject<T>>> eventTree = new HashMap<>();
+	private boolean allowSuperListeners = false;
 	ClassScanner<T> scanner;
 
 	public EventManager() {
@@ -93,20 +94,55 @@ public abstract class EventManager<T> {
 	}
 
 	/**
-	 * Wenn das Event Interrupted ist wird das aufrufen der Listener
-	 * abgebrochen<br>
-	 * Das Event wird nur aufgerufen wenn
-	 * {@link #shouldCallEvent(Object, Event)} true returnt<br>
-	 * oder die Event Methode die Annotation {@link CallAlways} gesetzt hat.<br>
-	 * Beispiel:<br>
-	 * <br>
-	 * <code>@CallAlways<br>
-	 * <code>@EventHandler(Priority.High)<br>
+	 * Ruft die Listener für das angegebene Event auf, es sei denn, das Event ist als unterbrochen markiert.
+	 *
+	 * Das Event wird nur dann verarbeitet, wenn {@link #shouldCallEvent(Object, Event)} TRUE zurückgibt
+	 * oder die Event-Methode mit der Annotation {@link CallAlways} versehen ist.
+	 *
+	 * Beispiel:
+	 * <pre>
+	 * {@literal @}CallAlways
+	 * {@literal @}EventHandler(Priority.High)
 	 * public static void onChat(PlayerChatEvent e) {}
-	 * </code>
+	 * </pre>
+	 *
+	 * @param event Das Event, dessen Listener aufgerufen werden sollen.
 	 */
 	private void callListeners(Event event) {
-		ArrayList<CallObject<T>> methods = eventTree.get(event.getClass());
+		callListeners(event, event.getClass());
+		if (isAllowSuperListeners()) {
+			callSuperListeners(event);
+		}
+	}
+
+	/**
+	 * Ruft die Listener für die übergeordneten Klassen des Events auf, um die Vererbungshierarchie zu berücksichtigen.
+	 *
+	 * Diese Methode wird aufgerufen, wenn {@link #isAllowSuperListeners()} TRUE ist und durchläuft
+	 * die Superklassen des Events, um entsprechende Listener aufzurufen.
+	 *
+	 * @param event Das Event, dessen Listener für die Superklassen aufgerufen werden sollen.
+	 */
+	private void callSuperListeners(Event event) {
+		Class<?> superclass = event.getClass().getSuperclass();
+		while (superclass != Object.class) {
+			callListeners(event, superclass);
+			superclass = superclass.getSuperclass();
+		}
+	}
+
+	/**
+	 * Ruft die Listener für eine spezifische Klasse des Events auf.
+	 *
+	 * Diese Methode wird sowohl für die eigentliche Eventklasse als auch für deren Superklassen verwendet.
+	 * Sie prüft, ob das Event unterbrochen ist und ob die Listener durch {@link #shouldCallEvent(Object, Event)}
+	 * oder die {@link CallAlways}-Annotation aufgerufen werden sollen.
+	 *
+	 * @param event Das Event, dessen Listener aufgerufen werden sollen.
+	 * @param eventClass Die spezifische Klasse des Events, für die Listener aufgerufen werden.
+	 */
+	private void callListeners(Event event, Class<?> eventClass) {
+		ArrayList<CallObject<T>> methods = eventTree.get(eventClass);
 		if (methods != null) {
 			for (CallObject<T> co : methods) {
 				if (event.isInterrupted()) {
@@ -179,4 +215,23 @@ public abstract class EventManager<T> {
 		}
 	}
 
+	public boolean isAllowSuperListeners() {
+		return allowSuperListeners;
+	}
+
+	/**
+	 * Legt fest, ob Listener, die direkt das generische "Event" abhören, ebenfalls aufgerufen werden sollen.
+	 * Wenn auf TRUE gesetzt, werden auch solche Listener benachrichtigt, die auf das generische Event reagieren.
+	 *
+	 * Beispiel:
+	 * <pre>
+	 * {@literal @}EventHandler
+	 * public void onEvent(Event event) {}
+	 * </pre>
+	 *
+	 * @param allowSuperListeners TRUE, wenn Listener für generische Events aufgerufen werden sollen, andernfalls FALSE.
+	 */
+	public void setAllowSuperListeners(boolean allowSuperListeners) {
+		this.allowSuperListeners = allowSuperListeners;
+	}
 }
