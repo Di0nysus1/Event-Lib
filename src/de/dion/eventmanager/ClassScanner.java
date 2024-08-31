@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
-import de.dion.client.eventmanager.events.Event;
+import de.dion.eventmanager.events.Event;
 
 /**
  * Der Classscanner durchsucht Klassen nach Events und tr�gt diese in den
