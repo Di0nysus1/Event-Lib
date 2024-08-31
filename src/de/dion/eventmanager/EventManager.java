@@ -1,4 +1,4 @@
-package de.dion.client.eventmanager;
+package de.dion.eventmanager;
 
 import java.util.ArrayList;
 import java.util.Collection;
